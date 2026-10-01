@@ -4,11 +4,57 @@
   // ─── SMOOTH REVEAL ON SCROLL ───
   var linkCards = document.querySelectorAll('.link-card');
   var galleryRows = document.querySelectorAll('.gallery-row');
+  var pressSections = document.querySelectorAll('.reveal-item');
+  var audioPlayer = document.querySelector('.music-section .audio-player audio');
+  var nowPlaying = document.querySelector('.music-section .now-playing');
+  var trackButtons = document.querySelectorAll('.track-play');
+
+  function resetTrackButtons() {
+    trackButtons.forEach(function (button) {
+      button.textContent = '▶';
+      button.parentElement.classList.remove('is-current');
+    });
+  }
+
+  trackButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      var source = button.getAttribute('data-src');
+      var isCurrentTrack = audioPlayer.getAttribute('src') === source;
+
+      if (isCurrentTrack && !audioPlayer.paused) {
+        audioPlayer.pause();
+        button.textContent = '▶';
+        return;
+      }
+
+      resetTrackButtons();
+      button.parentElement.classList.add('is-current');
+      button.textContent = 'Ⅱ';
+      nowPlaying.textContent = button.getAttribute('data-track');
+
+      if (!isCurrentTrack) {
+        audioPlayer.setAttribute('src', source);
+      }
+
+      audioPlayer.play().catch(function () {
+        button.textContent = '▶';
+      });
+    });
+  });
+
+  if (audioPlayer) {
+    audioPlayer.addEventListener('pause', function () {
+      trackButtons.forEach(function (button) {
+        button.textContent = '▶';
+      });
+    });
+  }
 
   function revealOnScroll() {
     var elements = [].concat(
       Array.prototype.slice.call(linkCards),
-      Array.prototype.slice.call(galleryRows)
+      Array.prototype.slice.call(galleryRows),
+      Array.prototype.slice.call(pressSections)
     );
 
     elements.forEach(function (el) {
@@ -28,6 +74,12 @@
   });
 
   galleryRows.forEach(function (el) {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(16px)';
+    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+  });
+
+  pressSections.forEach(function (el) {
     el.style.opacity = '0';
     el.style.transform = 'translateY(16px)';
     el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
